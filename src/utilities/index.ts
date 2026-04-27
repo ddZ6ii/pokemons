@@ -1,4 +1,5 @@
 export { default as capitalize } from './capitalize'
 export { default as cn } from './cn'
 export { default as getSystemPreference } from './getSystemPreference'
+export { default as isAbortError } from './is-abort-error'
 export { default as toggleMode } from './toggleMode'

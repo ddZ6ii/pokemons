@@ -5,9 +5,13 @@ import { toggleMode } from '@/utilities'
 
 const media = window.matchMedia('(prefers-color-scheme: dark)')
 
-// Only define what changes to listen for.
-// React passes its own callback that will be automatically fired when the source changes, and will trigger a re-render.
-// Should not perform any side effects.
+/**
+ * Registers a listener for browser-level color scheme changes.
+ * React provides the callback — no side effects should happen here.
+ *
+ * @param callback - Fired by React when the media query result changes.
+ * @returns Cleanup function that removes the listener.
+ */
 function subscribe(callback: () => void) {
   media.addEventListener('change', callback)
   return () => {
@@ -15,12 +19,19 @@ function subscribe(callback: () => void) {
   }
 }
 
-// How to read the current value of the source.
-// Called during render, after the callback fires.
+/**
+ * Returns whether the OS is currently in dark mode.
+ * Called during render and after each change notification.
+ */
 function getSnapshot() {
   return media.matches
 }
 
+/**
+ * Keeps the app's color mode in sync with the OS preference when the
+ * active mode is `"system"`. Re-runs whenever the mode setting or the
+ * OS preference changes.
+ */
 export default function useSystemModeSync() {
   const mode = useMode()
   const systemPreference = useSyncExternalStore(subscribe, getSnapshot)

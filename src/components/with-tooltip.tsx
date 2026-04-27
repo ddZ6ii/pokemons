@@ -3,24 +3,32 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { cn } from '@/utilities'
 
-type WithTooltipProps = React.ComponentProps<typeof Tooltip> & {
-  message: React.ReactNode
-}
+type WithTooltipProps = React.ComponentProps<typeof Tooltip> &
+  Pick<React.ComponentProps<typeof TooltipContent>, 'side'> & {
+    message: React.ReactNode
+    className?: string
+  }
 
 export default function WithTooltip({
   children,
+  className,
   message,
+  side = 'top',
   ...props
 }: WithTooltipProps) {
   return (
     <Tooltip {...props}>
       <TooltipTrigger asChild>
-        <span role="presentation" className="inline-block w-fit">
+        <span
+          role="presentation"
+          className={cn('inline-block w-fit', className)}
+        >
           {children}
         </span>
       </TooltipTrigger>
-      <TooltipContent>{message}</TooltipContent>
+      <TooltipContent side={side}>{message}</TooltipContent>
     </Tooltip>
   )
 }

@@ -1,0 +1,139 @@
+import React, { useState } from 'react'
+
+import { Card, CardContent, CardFooter } from '@/components/ui/card'
+import { Heading } from '@/components/ui/heading'
+import { Skeleton } from '@/components/ui/skeleton'
+import WithTooltip from '@/components/with-tooltip'
+import { POKEMON_SKILLS, type Pokemon, type PokemonType } from '@/schemas'
+import { cn } from '@/utilities'
+
+const BASE_IMAGE_URL =
+  'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork'
+
+const TYPE_COLORS: Record<PokemonType, string> = {
+  Bug: 'bg-[#92bd2d]',
+  Dark: 'bg-[#595761]',
+  Dragon: 'bg-[#076ac8]',
+  Electric: 'bg-[#f2d94e]',
+  Fairy: 'bg-[#ee91e5]',
+  Fighting: 'bg-[#d3425f]',
+  Fire: 'bg-[#fba54d]',
+  Flying: 'bg-[#a1bbec]',
+  Ghost: 'bg-[#5f6dbc]',
+  Grass: 'bg-[#5fbe58]',
+  Ground: 'bg-[#da7c4c]',
+  Ice: 'bg-[#76d0c1]',
+  Normal: 'bg-[#a0a29f]',
+  Poison: 'bg-[#b863cf]',
+  Psychic: 'bg-[#fa8582]',
+  Rock: 'bg-[#c9bc8a]',
+  Steel: 'bg-[#5894a3]',
+  Water: 'bg-[#549ce0]',
+}
+
+type PokemonCardProps = React.ComponentProps<typeof Card> & {
+  pokemon: Pokemon
+}
+
+export function PokemonCard({ pokemon, ...props }: PokemonCardProps) {
+  const [loaded, setLoaded] = useState(false)
+
+  return (
+    <Card className="relative max-w-xs cursor-pointer" {...props}>
+      <div className="absolute top-2 right-2 flex flex-col gap-2">
+        {pokemon.type.map((type, i) => (
+          <WithTooltip key={type} message={type} side="right">
+            <div
+              className={cn(
+                'size-6 cursor-pointer rounded-full p-1 transition-transform hover:scale-110',
+                TYPE_COLORS[pokemon.type[i]],
+              )}
+            >
+              <img
+                src={`/pokemon-types/${type.toLowerCase()}.svg`}
+                alt={type}
+                width={16}
+                height={16}
+                className="t aspect-square w-full object-cover"
+                style={{
+                  right: 8 + i * (24 + 4), // 24px size + 4px gap
+                }}
+              />
+            </div>
+          </WithTooltip>
+        ))}
+      </div>
+
+      <CardContent>
+        <div className="flex flex-col items-center gap-4">
+          {!loaded && <ImageSkeleton />}
+          <img
+            src={`${BASE_IMAGE_URL}/${pokemon.id.toString()}.png`}
+            alt={pokemon.name}
+            width={280}
+            height={280}
+            className={cn('mx-auto block size-70', !loaded && 'hidden')}
+            onLoad={() => {
+              setLoaded(true)
+            }}
+          />
+          <Heading as="h2">{pokemon.name}</Heading>
+        </div>
+      </CardContent>
+
+      <CardFooter>
+        <div className="text-muted-foreground flex w-full items-center text-xs">
+          {POKEMON_SKILLS.map((skill) => (
+            <WithTooltip
+              key={skill}
+              message={`${skill}: ${pokemon[skill].toString()}`}
+              className="after:bg-muted-foreground hover:text-foreground relative flex flex-1 justify-center transition-[colors_transform] after:absolute after:right-0 after:h-4 after:w-px after:content-[''] last:after:hidden hover:scale-110"
+            >
+              <div className="flex cursor-pointer items-center gap-1">
+                <img
+                  src={`/pokemon-skills/${skill}.svg`}
+                  alt={skill}
+                  width={20}
+                  height={20}
+                  className="size-5"
+                />
+                <span>{pokemon[skill]}</span>
+              </div>
+            </WithTooltip>
+          ))}
+        </div>
+      </CardFooter>
+    </Card>
+  )
+}
+
+function ImageSkeleton() {
+  return <Skeleton className="size-70 rounded-full" />
+}
+
+function PokemonCardSkeleton() {
+  return (
+    <Card className="relative max-w-xs">
+      <div className="absolute top-2 right-2 flex flex-col gap-2">
+        <Skeleton className="size-6 rounded-full" />
+        <Skeleton className="size-6 rounded-full" />
+      </div>
+      <CardContent>
+        <div className="flex flex-col items-center gap-4">
+          <ImageSkeleton />
+          <Skeleton className="h-7 w-1/2" />
+        </div>
+      </CardContent>
+      <CardFooter>
+        <div className="text-muted-foreground flex w-full items-center justify-between text-xs">
+          {Array.from({ length: POKEMON_SKILLS.length }).map((_, i) => (
+            <Skeleton key={i} className="flex h-5 w-1/5 justify-center" />
+          ))}
+        </div>
+      </CardFooter>
+    </Card>
+  )
+}
+
+export default PokemonCard
+export { PokemonCardSkeleton }
