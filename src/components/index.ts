@@ -1,5 +1,6 @@
 export { default as ErrorFallback } from './error-fallback'
 export { default as ErrorAlert } from './error-alert'
+export { default as Header } from './header'
 export { default as Logo } from './logo'
 export { default as Pokemons } from './pokemons'
 export { default as PokemonCard, PokemonCardSkeleton } from './pokemon-card'

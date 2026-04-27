@@ -13,7 +13,10 @@ export default function Pokemons({
   ...props
 }: React.ComponentProps<'section'>) {
   return (
-    <section className={cn('flex flex-col gap-8', className)} {...props}>
+    <section
+      className={cn('flex flex-col items-center gap-8', className)}
+      {...props}
+    >
       <Heading as="h1" className="text-center">
         Pokemons
       </Heading>
