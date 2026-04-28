@@ -1,22 +1,29 @@
-import { HttpError, ValidationError } from '@/api'
+import { useQuery } from '@tanstack/react-query'
+
+import { createPokemonsQueryOptions, HttpError } from '@/api'
 import { ErrorAlert, PokemonCard, PokemonCardSkeleton } from '@/components'
-import { usePokemons } from '@/hooks'
 
 const noResult = <p className="text-center">No pokemons found.</p>
 
 function PokemonList() {
-  const { data, loading, error, refetch } = usePokemons()
+  const {
+    data: pokemons,
+    isError,
+    isPending,
+    error,
+    refetch,
+  } = useQuery(createPokemonsQueryOptions())
 
-  if (loading) {
+  if (isPending) {
     return <PokemonListSkeleton />
   }
 
-  if (error) {
-    // ValidationError → API contract broken → Re-throw → boundary
-    if (error instanceof ValidationError) throw error
-    // Ressource missing (expected error) → handle inline
+  if (isError) {
+    // ValidationError are handled globally in the queryClient's options.
+    // Ressource missing (expected error) → handle inline.
     if (error instanceof HttpError && error.status === 404) return noResult
-    // 5xx or unknown → retryable; 4xx (non-404) → permanent, no retry
+    // 5xx or unknown → retryable.
+    // 4xx (non-404) → permanent, no retry.
     const isRetryable = !(error instanceof HttpError && error.status < 500)
     return (
       <ErrorAlert
@@ -27,13 +34,13 @@ function PokemonList() {
     )
   }
 
-  if (!data || data.length === 0) {
+  if (pokemons.length === 0) {
     return noResult
   }
 
   return (
     <ul className="flex flex-wrap justify-center gap-6">
-      {data.map((pokemon) => (
+      {pokemons.map((pokemon) => (
         <li key={pokemon.id}>
           <PokemonCard pokemon={pokemon} />
         </li>

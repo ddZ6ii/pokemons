@@ -1,9 +1,10 @@
-import { ZodError } from 'zod'
+import z, { ZodError } from 'zod'
 
 export class ValidationError extends Error {
   issues: ZodError['issues']
   constructor(err: ZodError) {
-    super(`Response validation failed: ${err.message}`, {
+    const pretty = z.prettifyError(err)
+    super(`Response validation failed: \n${pretty}`, {
       cause: err.cause,
     })
     this.name = 'ValidationError'

@@ -18,7 +18,7 @@ export default function Pokemons({
       {...props}
     >
       <Heading as="h1" className="text-center">
-        Pokemons
+        Pokédex
       </Heading>
 
       <div className="relative flex-1">
