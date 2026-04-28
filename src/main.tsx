@@ -10,6 +10,7 @@ import { ErrorFallback } from '@/components'
 import './index.css'
 
 const rootEl = document.getElementById('root')
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -17,7 +18,8 @@ const queryClient = new QueryClient({
       staleTime: Infinity,
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
-      // Globally handle errors (only valid for useQuery, not useSuspensQuery) that should trigger the closest error boundary (e.g.: ValidationError → API contract broken → Re-throw →  error boundary)
+      // Global error handling (only valid for useQuery) that should trigger the closest error boundary (e.g.: ValidationError → API contract broken → Re-throw →  error boundary).
+      // useSuspensQuery throws all errors unconditionally and synchronously, so it doesn't use this global error handling and always triggers the closest error boundary.
       throwOnError: (error) => {
         return error instanceof ValidationError
       },

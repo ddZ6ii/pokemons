@@ -1,38 +1,19 @@
-import { useQuery } from '@tanstack/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
 
-import { createPokemonsQueryOptions, HttpError } from '@/api'
-import { ErrorAlert, PokemonCard, PokemonCardSkeleton } from '@/components'
+import { createPokemonsQueryOptions } from '@/api'
+import { PokemonCard, PokemonCardSkeleton } from '@/components'
 
 const noResult = <p className="text-center">No pokemons found.</p>
 
 function PokemonList() {
-  const {
-    data: pokemons,
-    isError,
-    isPending,
-    error,
-    refetch,
-  } = useQuery(createPokemonsQueryOptions())
+  // ℹ️ How useSuspenseQuery works
+  //
+  // useSuspenseQuery throws synchronously on error.
+  // The component never reaches the return statement.
+  // -> `error`, `isError` and related component's branching logic are unreachable.
+  // React bubbles the error up to the closest error boundary.
 
-  if (isPending) {
-    return <PokemonListSkeleton />
-  }
-
-  if (isError) {
-    // ValidationError are handled globally in the queryClient's options.
-    // Ressource missing (expected error) → handle inline.
-    if (error instanceof HttpError && error.status === 404) return noResult
-    // 5xx or unknown → retryable.
-    // 4xx (non-404) → permanent, no retry.
-    const isRetryable = !(error instanceof HttpError && error.status < 500)
-    return (
-      <ErrorAlert
-        title="Failed to load pokemons"
-        errorMessage={error.message}
-        onRetry={isRetryable ? refetch : undefined}
-      />
-    )
-  }
+  const { data: pokemons } = useSuspenseQuery(createPokemonsQueryOptions())
 
   if (pokemons.length === 0) {
     return noResult

@@ -1,11 +1,17 @@
+import { QueryErrorResetBoundary } from '@tanstack/react-query'
+import { Suspense } from 'react'
 import { ErrorBoundary, type FallbackProps } from 'react-error-boundary'
 
-import { ErrorFallback, PokemonList } from '@/components'
+import { ErrorFallback, PokemonList, PokemonListSkeleton } from '@/components'
 import { Heading } from '@/components/ui/heading'
 import { cn } from '@/utilities'
 
 const WidgetFallback = (props: FallbackProps) => (
-  <ErrorFallback {...props} className="h-full" />
+  <ErrorFallback
+    {...props}
+    title="Failed to load pokemons"
+    className="h-full"
+  />
 )
 
 export default function Pokemons({
@@ -22,9 +28,24 @@ export default function Pokemons({
       </Heading>
 
       <div className="relative flex-1">
-        <ErrorBoundary FallbackComponent={WidgetFallback}>
-          <PokemonList />
-        </ErrorBoundary>
+        {/* 
+        ℹ️ How QueryErrorResetBoundary works
+        
+          1. resetErrorBoundary calls reset (from QueryErrorResetBoundary). This tells TanStack Query to clear the error state for queries inside the boundary.
+
+          2. ErrorBoundary then re-renders its children. useSuspenseQuery runs again, sees the query is no longer in error state, and triggers a fresh fetch (suspending while it loads).
+
+          Without QueryErrorResetBoundary, clicking retry would re-render the component but useSuspenseQuery would immediately re-throw the cached error — no network request would be made.
+         */}
+        <QueryErrorResetBoundary>
+          {({ reset }) => (
+            <ErrorBoundary FallbackComponent={WidgetFallback} onReset={reset}>
+              <Suspense fallback={<PokemonListSkeleton />}>
+                <PokemonList />
+              </Suspense>
+            </ErrorBoundary>
+          )}
+        </QueryErrorResetBoundary>
       </div>
     </section>
   )
