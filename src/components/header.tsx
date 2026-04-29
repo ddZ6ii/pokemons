@@ -1,13 +1,7 @@
-import {
-  motion,
-  useMotionValueEvent,
-  useScroll,
-  type Variants,
-} from 'motion/react'
-import { useState } from 'react'
+import { motion, type Variants } from 'motion/react'
 
 import { Logo, SelectMode } from '@/components'
-import { useSystemModeSync } from '@/hooks'
+import { useScrollVisibility, useSystemModeSync } from '@/hooks'
 import { cn } from '@/utilities'
 
 const variants: Variants = {
@@ -21,24 +15,12 @@ const variants: Variants = {
   },
 }
 
-const scrollThreshold = 0.0025
-
 export default function Header({
   className,
   ...props
 }: React.ComponentProps<typeof motion.header>) {
-  const [hidden, setHidden] = useState(false)
-  const { scrollYProgress } = useScroll()
-
+  const hidden = useScrollVisibility(0.05, 'down')
   useSystemModeSync()
-
-  useMotionValueEvent(scrollYProgress, 'change', (latest) => {
-    const previous = scrollYProgress.getPrevious()
-    if (!previous) return
-    const isScrollingDown = latest > previous
-    const shouldBeHidden = isScrollingDown && latest >= scrollThreshold
-    setHidden(shouldBeHidden)
-  })
 
   return (
     <motion.header

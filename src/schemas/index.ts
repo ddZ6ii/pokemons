@@ -8,7 +8,6 @@ export {
   pokemonsResponseSchema,
   pokemonsPaginatedResponseSchema,
   type Pokemon,
-  type Pokemons,
   type PokemonsOptions,
   type PokemonsApiParams,
   type PokemonType,

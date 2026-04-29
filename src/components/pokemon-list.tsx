@@ -1,28 +1,21 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
-
-import { createPokemonsQueryOptions } from '@/api'
 import { PokemonCard, PokemonCardSkeleton } from '@/components'
+import type { Pokemon } from '@/schemas'
+import { cn } from '@/utilities'
 
-const noResult = <p className="text-center">No pokemons found.</p>
+type PokemonListProps = React.ComponentProps<'ul'> & {
+  pokemons: Pokemon[]
+}
 
-function PokemonList() {
-  // ℹ️ How useSuspenseQuery works
-  //
-  // useSuspenseQuery throws synchronously on error.
-  // The component never reaches the return statement.
-  // -> `error`, `isError` and related component's branching logic are unreachable.
-  // React bubbles the error up to the closest error boundary.
-
-  const {
-    data: { data: pokemons },
-  } = useSuspenseQuery(createPokemonsQueryOptions())
-
+function PokemonList({ className, pokemons, ...props }: PokemonListProps) {
   if (pokemons.length === 0) {
-    return noResult
+    return <p className="text-center">No pokemons found.</p>
   }
 
   return (
-    <ul className="flex flex-wrap justify-center gap-6">
+    <ul
+      className={cn('flex flex-1 flex-wrap justify-center gap-6', className)}
+      {...props}
+    >
       {pokemons.map((pokemon) => (
         <li key={pokemon.id}>
           <PokemonCard pokemon={pokemon} />
@@ -34,13 +27,15 @@ function PokemonList() {
 
 function PokemonListSkeleton() {
   return (
-    <ul className="flex flex-wrap justify-center gap-6">
-      {Array.from({ length: 12 }).map((_, index) => (
-        <li key={index}>
-          <PokemonCardSkeleton />
-        </li>
-      ))}
-    </ul>
+    <div role="status" aria-live="polite">
+      <ul className="flex flex-wrap justify-center gap-6">
+        {Array.from({ length: 12 }).map((_, index) => (
+          <li key={index}>
+            <PokemonCardSkeleton aria-hidden={true} />
+          </li>
+        ))}
+      </ul>
+    </div>
   )
 }
 

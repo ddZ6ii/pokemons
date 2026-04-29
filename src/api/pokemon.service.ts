@@ -27,6 +27,9 @@ class PokemonService {
       if (!response.ok) throw new HttpError(response)
       return schema.parse(await response.json())
     } catch (error) {
+      // Let the query runner know the fetch was cancelled.
+      // TanStack Query manages query cancellation internally.
+      // It recognizes abort errors and does not propagte them to the Error Boundary.
       if (isAbortError(error)) throw error
       if (error instanceof HttpError) throw error
       if (error instanceof ZodError) throw new ValidationError(error)

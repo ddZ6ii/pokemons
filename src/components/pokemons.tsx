@@ -1,52 +1,67 @@
-import { QueryErrorResetBoundary } from '@tanstack/react-query'
-import { Suspense } from 'react'
-import { ErrorBoundary, type FallbackProps } from 'react-error-boundary'
+import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { useState, useTransition } from 'react'
 
-import { ErrorFallback, PokemonList, PokemonListSkeleton } from '@/components'
-import { Heading } from '@/components/ui/heading'
-import { cn } from '@/utilities'
+import { createPokemonsQueryOptions } from '@/api'
+import { Pagination, PokemonList } from '@/components'
 
-const WidgetFallback = (props: FallbackProps) => (
-  <ErrorFallback
-    {...props}
-    title="Failed to load pokemons"
-    className="h-full"
-  />
-)
+export default function Pokemons() {
+  const queryClient = useQueryClient()
+  const [page, setPage] = useState(1)
 
-export default function Pokemons({
-  className,
-  ...props
-}: React.ComponentProps<'section'>) {
+  // ℹ️ Why useTransition?
+  //
+  // Problem:
+  // useSuspenseQuery unmounts the current UI while fetching:
+  // -> jumpy UI alterning between the content and the fallback
+  // -> poor UX on each page transition
+  //
+  // Solution:
+  // Show state data while fetching new data in the background:
+  // -> prevents the UI from being replaced by a fallback during an update
+  // BUT `placeholderData` does not exist with useSuspenseQuery!
+  // -> wrap the updates that change the QueryKey with React startTransition
+  // -> pass isPending to Pagination to disable controls until the transition settles
+  const [isPending, startTransition] = useTransition()
+
+  // ℹ️ How useSuspenseQuery works
+  //
+  // useSuspenseQuery throws synchronously on error.
+  // The component never reaches the return statement.
+  // -> `error`, `isError` and related component's branching logic are unreachable.
+  // React bubbles the error up to the closest error boundary.
+  const {
+    data: { data: pokemons, pages: maxPage },
+  } = useSuspenseQuery(
+    createPokemonsQueryOptions({
+      page,
+    }),
+  )
+
+  const handlePageChange = (nextPage: number) => {
+    if (nextPage >= 1 && nextPage <= maxPage) {
+      // If this update suspends, don't hide the already displayed content
+      startTransition(() => {
+        setPage(nextPage)
+      })
+    }
+  }
+  const handlePageHover = async (nextPage: number) => {
+    await queryClient.prefetchQuery(
+      createPokemonsQueryOptions({ page: nextPage }),
+    )
+  }
+
   return (
-    <section
-      className={cn('flex flex-col items-center gap-8', className)}
-      {...props}
-    >
-      <Heading as="h1" className="text-center">
-        Pokédex
-      </Heading>
-
-      <div className="relative flex-1">
-        {/* 
-        ℹ️ How QueryErrorResetBoundary works
-        
-          1. resetErrorBoundary calls reset (from QueryErrorResetBoundary). This tells TanStack Query to clear the error state for queries inside the boundary.
-
-          2. ErrorBoundary then re-renders its children. useSuspenseQuery runs again, sees the query is no longer in error state, and triggers a fresh fetch (suspending while it loads).
-
-          Without QueryErrorResetBoundary, clicking retry would re-render the component but useSuspenseQuery would immediately re-throw the cached error — no network request would be made.
-         */}
-        <QueryErrorResetBoundary>
-          {({ reset }) => (
-            <ErrorBoundary FallbackComponent={WidgetFallback} onReset={reset}>
-              <Suspense fallback={<PokemonListSkeleton />}>
-                <PokemonList />
-              </Suspense>
-            </ErrorBoundary>
-          )}
-        </QueryErrorResetBoundary>
-      </div>
-    </section>
+    <>
+      <PokemonList pokemons={pokemons} />
+      <Pagination
+        disabled={isPending}
+        page={page}
+        maxPage={maxPage}
+        maxDisplayedPages={5}
+        onPageChange={handlePageChange}
+        onPageHover={handlePageHover}
+      />
+    </>
   )
 }

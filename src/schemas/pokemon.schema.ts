@@ -74,7 +74,6 @@ type PokemonSkills = z.infer<typeof _pokemonSkillsSchema>
 type Pokemon = z.infer<typeof pokemonSchema>
 type PokemonsOptions = z.input<typeof pokemonsAPIParamsSchema>
 type PokemonsApiParams = z.output<typeof pokemonsAPIParamsSchema>
-type Pokemons = z.infer<typeof pokemonsResponseSchema>
 type PokemonsPaginatedResponse = z.infer<typeof pokemonsPaginatedResponseSchema>
 
 export {
@@ -85,7 +84,6 @@ export {
   pokemonsResponseSchema,
   pokemonsPaginatedResponseSchema,
   type Pokemon,
-  type Pokemons,
   type PokemonsOptions,
   type PokemonsApiParams,
   type PokemonType,
