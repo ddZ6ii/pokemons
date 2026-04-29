@@ -13,7 +13,9 @@ function PokemonList() {
   // -> `error`, `isError` and related component's branching logic are unreachable.
   // React bubbles the error up to the closest error boundary.
 
-  const { data: pokemons } = useSuspenseQuery(createPokemonsQueryOptions())
+  const {
+    data: { data: pokemons },
+  } = useSuspenseQuery(createPokemonsQueryOptions())
 
   if (pokemons.length === 0) {
     return noResult

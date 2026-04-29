@@ -1,7 +1,12 @@
 import { ZodError, type ZodType } from 'zod'
 
 import { HttpError, ServerError, ValidationError } from '@/api'
-import { envSchema, pokemonsResponseSchema, type Pokemons } from '@/schemas'
+import {
+  envSchema,
+  pokemonsPaginatedResponseSchema,
+  type PokemonsApiParams,
+  type PokemonsPaginatedResponse,
+} from '@/schemas'
 import { isAbortError } from '@/utilities'
 
 class PokemonService {
@@ -12,11 +17,11 @@ class PokemonService {
     this.#baseUrl = `http://localhost:${port.toString()}`
   }
 
-  async #fetch<T>(
+  async #fetch<TData>(
     url: string,
-    schema: ZodType<T>,
+    schema: ZodType<TData>,
     signal?: AbortSignal,
-  ): Promise<T> {
+  ): Promise<TData> {
     try {
       const response = await fetch(url, { signal })
       if (!response.ok) throw new HttpError(response)
@@ -29,10 +34,14 @@ class PokemonService {
     }
   }
 
-  getPokemons(signal?: AbortSignal): Promise<Pokemons> {
+  async getPokemons(
+    options: PokemonsApiParams,
+    signal?: AbortSignal,
+  ): Promise<PokemonsPaginatedResponse> {
+    const searchParams = new URLSearchParams(options).toString()
     return this.#fetch(
-      `${this.#baseUrl}/pokemons`,
-      pokemonsResponseSchema,
+      `${this.#baseUrl}/pokemons?${searchParams}`,
+      pokemonsPaginatedResponseSchema,
       signal,
     )
   }
