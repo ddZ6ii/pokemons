@@ -42,18 +42,18 @@ const buttonVariants = cva(
 )
 
 type WithLoading = {
-  loading: boolean
+  loading: true
   dataIcon?: 'inline-start' | 'inline-end'
+  asChild?: false
 }
 type WithoutLoading = {
-  loading?: never
+  loading?: false
   dataIcon?: never
+  asChild?: boolean
 }
 type ButtonProps = React.ComponentProps<'button'> &
   VariantProps<typeof buttonVariants> &
-  (WithLoading | WithoutLoading) & {
-    asChild?: boolean
-  }
+  (WithLoading | WithoutLoading)
 
 function Button({
   children,
@@ -67,21 +67,28 @@ function Button({
 }: ButtonProps) {
   const Comp = asChild ? Slot.Root : 'button'
 
+  const output: React.ReactNode[] = [children]
+  const spinner = loading ? (
+    <Spinner data-icon={dataIcon} aria-hidden="true" />
+  ) : null
+  if (loading) {
+    if (dataIcon === 'inline-start') {
+      output.unshift(spinner)
+    } else {
+      output.push(spinner)
+    }
+  }
+
   return (
     <Comp
       data-slot="button"
       data-variant={variant}
       data-size={size}
+      disabled={loading}
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     >
-      {loading && dataIcon === 'inline-start' && (
-        <Spinner data-icon={dataIcon} aria-hidden="true" />
-      )}
-      {children}
-      {loading && dataIcon === 'inline-end' && (
-        <Spinner data-icon={dataIcon} aria-hidden="true" />
-      )}
+      {asChild ? children : output}
     </Comp>
   )
 }
