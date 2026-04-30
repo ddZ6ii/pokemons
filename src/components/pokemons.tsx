@@ -1,11 +1,21 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
+import {
+  QueryErrorResetBoundary,
+  useSuspenseQuery,
+} from '@tanstack/react-query'
+import { Suspense } from 'react'
+import { ErrorBoundary, type FallbackProps } from 'react-error-boundary'
 
 import { createPokemonsQueryOptions } from '@/api'
-import { PaginationBar, PokemonList } from '@/components'
+import {
+  ErrorFallback,
+  PokemonListSkeleton,
+  PaginationBar,
+  PokemonList,
+} from '@/components'
 import { useFilters } from '@/store'
 
-export default function Pokemons() {
-  const { page, perPage } = useFilters()
+function PokemonsFetcher() {
+  const { page, perPage, search } = useFilters()
 
   // ℹ️ How useSuspenseQuery works
   //
@@ -19,13 +29,44 @@ export default function Pokemons() {
     createPokemonsQueryOptions({
       page,
       perPage,
+      search,
     }),
   )
-
   return (
     <>
       <PokemonList pokemons={pokemons} />
       <PaginationBar maxPage={maxPage} />
     </>
+  )
+}
+
+function WidgetFallback(props: FallbackProps) {
+  return (
+    <ErrorFallback
+      {...props}
+      title="Failed to load pokemons"
+      className="h-full"
+    />
+  )
+}
+
+export default function Pokemons() {
+  // ℹ️ How QueryErrorResetBoundary works
+
+  // 1. resetErrorBoundary calls reset (from QueryErrorResetBoundary). This tells TanStack Query to clear the error state for queries inside the boundary.
+
+  // 2. ErrorBoundary then re-renders its children. useSuspenseQuery runs again, sees the query is no longer in error state, and triggers a fresh fetch (suspending while it loads).
+
+  // Without QueryErrorResetBoundary, clicking retry would re-render the component but useSuspenseQuery would immediately re-throw the cached error — no network request would be made.
+  return (
+    <QueryErrorResetBoundary>
+      {({ reset }) => (
+        <ErrorBoundary FallbackComponent={WidgetFallback} onReset={reset}>
+          <Suspense fallback={<PokemonListSkeleton />}>
+            <PokemonsFetcher />
+          </Suspense>
+        </ErrorBoundary>
+      )}
+    </QueryErrorResetBoundary>
   )
 }

@@ -42,16 +42,20 @@ const pokemonSchema = z.object({
 const _baseOptionsSchema = z.object({
   page: z.number().int().positive().default(1),
   perPage: z.number().int().positive().max(100).default(10),
+  search: z.string().optional(),
   sort: z.enum(['id', 'name']).default('id'),
   order: z.enum(['asc', 'desc']).default('asc'),
 })
 const pokemonsAPIParamsSchema = _baseOptionsSchema
   .optional()
   .transform((input) => {
-    const { page, perPage, sort, order } = _baseOptionsSchema.parse(input ?? {})
+    const { page, perPage, search, sort, order } = _baseOptionsSchema.parse(
+      input ?? {},
+    )
     return {
       _page: page.toString(),
       _per_page: perPage.toString(),
+      ...(search && { 'name:contains': search }),
       // json-server stringifies numeric IDs, making _sort=id lexicographic. Since db.json is already in ascending numeric order, omit _sort for this case.
       ...(sort !== 'id' && { _sort: order === 'asc' ? sort : `-${sort}` }),
     }

@@ -74,7 +74,7 @@ export default function Pagination({
             return (
               <PaginationItem key={pageNumber}>
                 <PaginationLink
-                  disabled={disabled}
+                  disabled={(disabled ?? false) || pageNumber > maxPage}
                   isActive={page === pageNumber}
                   onClick={() => {
                     handlePageChange(pageNumber)

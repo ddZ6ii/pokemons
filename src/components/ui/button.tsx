@@ -1,5 +1,6 @@
 import { cva, type VariantProps } from 'class-variance-authority'
 import { Slot } from 'radix-ui'
+import { Fragment } from 'react'
 
 import { Spinner } from '@/components/ui/spinner'
 import { cn } from '@/utilities'
@@ -67,17 +68,14 @@ function Button({
 }: ButtonProps) {
   const Comp = asChild ? Slot.Root : 'button'
 
-  const output: React.ReactNode[] = [children]
   const spinner = loading ? (
-    <Spinner data-icon={dataIcon} aria-hidden="true" />
+    <Spinner key="spinner" data-icon={dataIcon} aria-hidden="true" />
   ) : null
-  if (loading) {
-    if (dataIcon === 'inline-start') {
-      output.unshift(spinner)
-    } else {
-      output.push(spinner)
-    }
-  }
+
+  const output: React.ReactNode[] =
+    loading && dataIcon === 'inline-start'
+      ? [spinner, <Fragment key="children">{children}</Fragment>]
+      : [<Fragment key="children">{children}</Fragment>, spinner]
 
   return (
     <Comp
@@ -93,4 +91,4 @@ function Button({
   )
 }
 
-export { Button, buttonVariants }
+export { Button, buttonVariants, type ButtonProps }

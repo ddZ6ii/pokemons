@@ -13,13 +13,14 @@ const FilterSchema = z.object({
     z.literal(50),
     z.literal(100),
   ]),
+  search: z.string().optional(),
 })
 
 const StorageSchema = z.object({
   version: z.number(),
   state: z.object({
     mode: ModeSchema,
-    perPage: FilterSchema.shape.perPage,
+    ...FilterSchema.omit({ page: true, search: true }).shape,
   }),
 })
 

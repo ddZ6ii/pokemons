@@ -4,8 +4,9 @@ import type { Filters } from '@/schemas'
 
 type FilterActions = {
   filterActions: {
-    setPage: (nextPage: number) => void
+    setPage: (nextPage: Filters['page']) => void
     setPerPage: (nextPerPage: Filters['perPage']) => void
+    setSearch: (nextSearch: Filters['search']) => void
   }
 }
 type FilterSlice = Filters & FilterActions
@@ -13,6 +14,7 @@ type FilterSlice = Filters & FilterActions
 const initialFilterState: Filters = {
   page: 1,
   perPage: 10,
+  search: '',
 }
 
 const createFilterSlice: StateCreator<FilterSlice, [], [], FilterSlice> = (
@@ -26,6 +28,9 @@ const createFilterSlice: StateCreator<FilterSlice, [], [], FilterSlice> = (
     },
     setPerPage: (nextPerPage) => {
       set({ perPage: nextPerPage, page: initialFilterState.page })
+    },
+    setSearch: (nextSearch) => {
+      set({ search: nextSearch, page: initialFilterState.page })
     },
   },
 })

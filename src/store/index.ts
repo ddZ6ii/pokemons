@@ -22,6 +22,7 @@ const useStore = create<StoreState>()(
         if (version === 0) {
           return { ...(persistedState as object), perPage: 10 }
         }
+
         return persistedState
       },
       // Custom storage adapter to extend base implementation with runtime validation (null → falls back to initialState)
@@ -38,7 +39,7 @@ const useStore = create<StoreState>()(
         },
       })),
       // Only persist a subset of the store state:
-      // - `page` is transient (-> not persisted)
+      // - `page` and `search` are transient (-> not persisted)
       // - `isDarkMode` is derived from mode + current system preference (-> not persisted)
       partialize: (state) => ({
         mode: state.mode,
@@ -66,9 +67,14 @@ const useModeActions = () => useStore((state) => state.modeActions)
 // Filter slice selectors
 const usePage = () => useStore((state) => state.page)
 const usePerPage = () => useStore((state) => state.perPage)
+const useSearch = () => useStore((state) => state.search)
 const useFilters = () =>
   useStore(
-    useShallow((state) => ({ page: state.page, perPage: state.perPage })),
+    useShallow((state) => ({
+      page: state.page,
+      perPage: state.perPage,
+      search: state.search,
+    })),
   )
 const useFiltersActions = () => useStore((state) => state.filterActions)
 
@@ -76,8 +82,9 @@ export {
   useIsDarkMode,
   useMode,
   useModeActions,
+  useFilters,
   usePage,
   usePerPage,
-  useFilters,
+  useSearch,
   useFiltersActions,
 }
