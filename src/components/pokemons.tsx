@@ -2,11 +2,12 @@ import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { useState, useTransition } from 'react'
 
 import { createPokemonsQueryOptions } from '@/api'
-import { Pagination, PokemonList } from '@/components'
+import { PaginationBar, PokemonList } from '@/components'
 
 export default function Pokemons() {
-  const queryClient = useQueryClient()
   const [page, setPage] = useState(1)
+  const [perPage, setPerPage] = useState(10)
+  const queryClient = useQueryClient()
 
   // ℹ️ Why useTransition?
   //
@@ -18,7 +19,7 @@ export default function Pokemons() {
   // Solution:
   // Show state data while fetching new data in the background:
   // -> prevents the UI from being replaced by a fallback during an update
-  // BUT `placeholderData` does not exist with useSuspenseQuery!
+  // But since `placeholderData` does not exist with useSuspenseQuery:
   // -> wrap the updates that change the QueryKey with React startTransition
   // -> pass isPending to Pagination to disable controls until the transition settles
   const [isPending, startTransition] = useTransition()
@@ -34,6 +35,7 @@ export default function Pokemons() {
   } = useSuspenseQuery(
     createPokemonsQueryOptions({
       page,
+      perPage,
     }),
   )
 
@@ -50,17 +52,23 @@ export default function Pokemons() {
       createPokemonsQueryOptions({ page: nextPage }),
     )
   }
+  const handlePerPageChange = (nextPerPage: number) => {
+    startTransition(() => {
+      setPerPage(nextPerPage)
+    })
+  }
 
   return (
     <>
       <PokemonList pokemons={pokemons} />
-      <Pagination
+      <PaginationBar
         disabled={isPending}
-        page={page}
         maxPage={maxPage}
-        maxDisplayedPages={5}
+        page={page}
+        perPage={perPage}
         onPageChange={handlePageChange}
         onPageHover={handlePageHover}
+        onPerPageChange={handlePerPageChange}
       />
     </>
   )
