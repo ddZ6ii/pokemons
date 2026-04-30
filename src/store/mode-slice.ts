@@ -3,22 +3,22 @@ import { type StateCreator } from 'zustand'
 import { type Mode } from '@/schemas'
 import { getSystemPreference, toggleMode } from '@/utilities'
 
-type StoreState = {
+type ModeState = {
   mode: Mode
   isDarkMode: boolean
 }
-type StoreActions = {
-  actions: {
+type ModeActions = {
+  modeActions: {
     setMode: (nextMode: Mode) => void
   }
 }
-type ModeSlice = StoreState & StoreActions
+type ModeSlice = ModeState & ModeActions
 
 const createModeSlice: StateCreator<ModeSlice, [], [], ModeSlice> = (set) => ({
   // Initial default value (overriden by persisted value if it exists)
   mode: 'system',
   isDarkMode: getSystemPreference() === 'dark',
-  actions: {
+  modeActions: {
     setMode: (mode) => {
       const isDarkMode =
         mode === 'dark' ||
@@ -30,4 +30,4 @@ const createModeSlice: StateCreator<ModeSlice, [], [], ModeSlice> = (set) => ({
   },
 })
 
-export { createModeSlice, type ModeSlice, type StoreState }
+export { createModeSlice, type ModeSlice }

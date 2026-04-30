@@ -1,3 +1,6 @@
+import { useQueryClient } from '@tanstack/react-query'
+
+import { createPokemonsQueryOptions } from '@/api'
 import {
   Pagination as UIPagination,
   PaginationContent,
@@ -7,26 +10,41 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination'
+import { useFilters, useFiltersActions } from '@/store'
 
 type PaginationProps = React.ComponentProps<'div'> & {
-  disabled: boolean
-  page: number
+  disabled?: boolean
   maxDisplayedPages?: number
   maxPage: number
-  onPageChange: (nextPage: number) => void
-  onPageHover: (nextPage: number) => void
+  startTransition: React.TransitionStartFunction
 }
 
 export default function Pagination({
   className,
   disabled,
-  page,
-  maxDisplayedPages = 3,
+  maxDisplayedPages = 5,
   maxPage,
-  onPageChange,
-  onPageHover,
+  startTransition,
   ...props
 }: PaginationProps) {
+  const queryClient = useQueryClient()
+  const { page, ...filters } = useFilters()
+  const { setPage } = useFiltersActions()
+
+  const handlePageChange = (nextPage: number) => {
+    if (nextPage >= 1 && nextPage <= maxPage) {
+      // If this update suspends, don't hide the already displayed content
+      startTransition(() => {
+        setPage(nextPage)
+      })
+    }
+  }
+  const handlePageHover = async (nextPage: number) => {
+    await queryClient.prefetchQuery(
+      createPokemonsQueryOptions({ page: nextPage, ...filters }),
+    )
+  }
+
   return (
     <div className={className} {...props}>
       <UIPagination>
@@ -35,11 +53,11 @@ export default function Pagination({
             <PaginationPrevious
               disabled={page <= 1 || disabled}
               onClick={() => {
-                onPageChange(page - 1)
+                handlePageChange(page - 1)
               }}
               onMouseEnter={() => {
                 if (page > 1) {
-                  onPageHover(page - 1)
+                  void handlePageHover(page - 1)
                 }
               }}
             />
@@ -59,11 +77,11 @@ export default function Pagination({
                   disabled={disabled}
                   isActive={page === pageNumber}
                   onClick={() => {
-                    onPageChange(pageNumber)
+                    handlePageChange(pageNumber)
                   }}
                   onMouseEnter={() => {
                     if (pageNumber !== page) {
-                      onPageHover(pageNumber)
+                      void handlePageHover(pageNumber)
                     }
                   }}
                 >
@@ -82,11 +100,11 @@ export default function Pagination({
             <PaginationNext
               disabled={page >= maxPage || disabled}
               onClick={() => {
-                onPageChange(page + 1)
+                handlePageChange(page + 1)
               }}
               onMouseEnter={() => {
                 if (page < maxPage) {
-                  onPageHover(page + 1)
+                  void handlePageHover(page + 1)
                 }
               }}
             />

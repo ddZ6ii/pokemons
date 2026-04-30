@@ -44,5 +44,5 @@ export default function useFetch<T>(
     }
   }, [reloadIndex, key])
 
-  return { data, loading, error, refetch }
+  return { data, loading, error, refetch } as const
 }

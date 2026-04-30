@@ -1,5 +1,4 @@
-import { screen, waitFor, within } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
 import {
@@ -14,10 +13,10 @@ import {
 
 import Pokedex from './pokedex'
 import type { PokemonsPaginatedResponse } from '@/schemas'
+import { initialFilterState } from '@/store/filters-slice'
 import { renderWithProviders } from '@/tests/utilities'
 
 const POKEMONS_URL = '*/pokemons'
-
 const successResponse: PokemonsPaginatedResponse = {
   first: 1,
   prev: null,
@@ -39,8 +38,11 @@ const successResponse: PokemonsPaginatedResponse = {
     },
   ],
 }
-
 const server = setupServer()
+
+function renderPokedex() {
+  return renderWithProviders(<Pokedex />)
+}
 
 beforeAll(() => {
   server.listen()
@@ -52,23 +54,40 @@ afterAll(() => {
   server.close()
 })
 
-function renderPokedex() {
-  return renderWithProviders(<Pokedex />)
-}
-
 describe('Pokedex', () => {
-  it('shows skeleton while loading', () => {
+  it('shows skeleton while loading', async () => {
+    let resolveFetch: (response: Response) => void
     vi.spyOn(globalThis, 'fetch').mockImplementation(
-      () => new Promise((_resolve) => undefined),
+      () =>
+        new Promise<Response>((resolve) => {
+          // Promise extraction: save the resolve function to call it later in the test
+          resolveFetch = resolve
+        }),
     )
 
+    // Calls fetch within useSuspenseQuery -> returns a forever-pending promise -> component shows skeleton
     renderPokedex()
 
+    // Assertions happen here while fetch is still pending
     const container = screen.getByRole('status')
     const list = screen.getByRole('status')
     const listItems = within(list).getAllByRole('listitem')
     expect(container).toBeInTheDocument()
-    expect(listItems).toHaveLength(12)
+    expect(listItems).toHaveLength(initialFilterState.perPage)
+
+    // Cleanly resolve the fetch promise to avoid test leaks and allow any pending effects to finish
+    await act(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveFetch(
+            new Response(JSON.stringify(successResponse), {
+              status: 200,
+              headers: { 'Content-Type': 'application/json' },
+            }),
+          )
+          resolve()
+        }),
+    )
   })
 
   it('shows empty state when no pokemons exist', async () => {
@@ -84,6 +103,7 @@ describe('Pokedex', () => {
   })
 
   it('shows error without retry button for non-recoverable errors', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
     server.use(
       http.get(POKEMONS_URL, () => new HttpResponse(null, { status: 400 })),
     )
@@ -99,6 +119,7 @@ describe('Pokedex', () => {
   })
 
   it('shows error fallback then recovers after retry', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
     server.use(
       // First call: 500 → triggers error boundary
       http.get(POKEMONS_URL, () => new HttpResponse(null, { status: 500 }), {
@@ -114,7 +135,7 @@ describe('Pokedex', () => {
       expect(screen.getByText('Failed to load pokemons')).toBeInTheDocument(),
     )
 
-    await userEvent.click(screen.getByRole('button', { name: /retry/i }))
+    fireEvent.click(screen.getByRole('button', { name: /retry/i }))
 
     await waitFor(() =>
       expect(screen.getByText('Bulbasaur')).toBeInTheDocument(),

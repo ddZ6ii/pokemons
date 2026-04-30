@@ -15,4 +15,11 @@ export {
   type PokemonsPaginatedResponse,
 } from './pokemon.schema'
 
-export { type Mode, MODES, StorageSchema } from './store.schema'
+export {
+  type Filters,
+  type Mode,
+  type PersistedStoreState,
+  MODES,
+  PER_PAGE_OPTIONS,
+  StorageSchema,
+} from './store.schema'

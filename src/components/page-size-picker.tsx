@@ -7,29 +7,41 @@ import {
   SelectItem,
   SelectLabel,
 } from '@/components/ui/select'
+import { PER_PAGE_OPTIONS, type Filters } from '@/schemas'
+import { useFiltersActions, usePerPage } from '@/store'
 import { cn } from '@/utilities'
 
 type PageSizePickerProps = React.ComponentProps<typeof SelectTrigger> & {
-  perPage: number
-  onPerPageChange: (nextPerPage: number) => void
+  startTransition: React.TransitionStartFunction
 }
-
-const PER_PAGE_OPTIONS = ['10', '20', '50', '100'] as const
 
 export default function PageSizePicker({
   className,
-  perPage,
-  onPerPageChange,
+  disabled,
+  startTransition,
   ...props
 }: PageSizePickerProps) {
+  const perPage = usePerPage()
+  const { setPerPage } = useFiltersActions()
+
+  const handlePerPageChange = (nextPerPage: Filters['perPage']) => {
+    startTransition(() => {
+      setPerPage(nextPerPage)
+    })
+  }
+
   return (
     <Select
       value={perPage.toString()}
       onValueChange={(nextPerPage) => {
-        onPerPageChange(Number(nextPerPage))
+        handlePerPageChange(Number(nextPerPage) as Filters['perPage'])
       }}
     >
-      <SelectTrigger className={cn('w-full max-w-17', className)} {...props}>
+      <SelectTrigger
+        disabled={disabled}
+        className={cn('w-full max-w-17', className)}
+        {...props}
+      >
         <SelectValue placeholder="Items per page" />
       </SelectTrigger>
       <SelectContent>

@@ -1,4 +1,5 @@
 import { motion, type Variants } from 'motion/react'
+import { useTransition } from 'react'
 
 import { PageSizePicker, Pagination } from '@/components'
 import { Separator } from '@/components/ui/separator'
@@ -17,27 +18,32 @@ const variants: Variants = {
 }
 
 type PaginationBarProps = React.ComponentProps<typeof motion.div> & {
-  disabled: boolean
   maxPage: number
-  page: number
-  perPage: number
-  onPageChange: (nextPage: number) => void
-  onPageHover: (nextPage: number) => void
-  onPerPageChange: (nextPerPage: number) => void
 }
 
 export default function PaginationBar({
   className,
-  disabled,
   maxPage,
-  page,
-  perPage,
-  onPageChange,
-  onPageHover,
-  onPerPageChange,
   ...props
 }: PaginationBarProps) {
   const hidden = useScrollVisibility(0.95, 'up', true)
+
+  // ℹ️ Why useTransition?
+  //
+  // Problem:
+  // useSuspenseQuery unmounts the current UI while fetching:
+  // -> jumpy UI alterning between the content and the fallback
+  // -> poor UX on each page transition
+  //
+  // Solution:
+  // Show state data while fetching new data in the background:
+  // -> prevents the UI from being replaced by a fallback during an update
+  // But since `placeholderData` does not exist with useSuspenseQuery:
+  // -> wrap the updates that change the QueryKey with React startTransition
+  // -> pass isPending state to disable controls until the transition settles
+  //
+  // Share the same transition state between Pagination and PageSizePicker to disable both controls during any transition
+  const [isPending, startTransition] = useTransition()
 
   return (
     <motion.div
@@ -57,9 +63,8 @@ export default function PaginationBar({
       <div className="flex w-full items-center justify-center gap-2">
         <p className="hidden whitespace-nowrap lg:block">Items per page:</p>
         <PageSizePicker
-          disabled={disabled}
-          perPage={perPage}
-          onPerPageChange={onPerPageChange}
+          disabled={isPending}
+          startTransition={startTransition}
         />
       </div>
 
@@ -69,12 +74,9 @@ export default function PaginationBar({
       />
 
       <Pagination
-        disabled={disabled}
-        page={page}
+        disabled={isPending}
         maxPage={maxPage}
-        maxDisplayedPages={5}
-        onPageChange={onPageChange}
-        onPageHover={onPageHover}
+        startTransition={startTransition}
       />
     </motion.div>
   )

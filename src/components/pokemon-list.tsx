@@ -1,5 +1,6 @@
 import { PokemonCard, PokemonCardSkeleton } from '@/components'
 import type { Pokemon } from '@/schemas'
+import { usePerPage } from '@/store'
 import { cn } from '@/utilities'
 
 type PokemonListProps = React.ComponentProps<'ul'> & {
@@ -25,11 +26,16 @@ function PokemonList({ className, pokemons, ...props }: PokemonListProps) {
   )
 }
 
-function PokemonListSkeleton() {
+function PokemonListSkeleton({
+  className,
+  ...props
+}: React.ComponentProps<'div'>) {
+  const perPage = usePerPage()
+
   return (
-    <div role="status" aria-live="polite">
+    <div role="status" aria-live="polite" className={className} {...props}>
       <ul className="flex flex-wrap justify-center gap-6">
-        {Array.from({ length: 12 }).map((_, index) => (
+        {Array.from({ length: perPage }).map((_, index) => (
           <li key={index}>
             <PokemonCardSkeleton aria-hidden={true} />
           </li>
