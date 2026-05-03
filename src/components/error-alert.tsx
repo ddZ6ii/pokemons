@@ -31,7 +31,7 @@ export default function ErrorAlert({
       )}
       {...props}
     >
-      <AlertCircleIcon />
+      <AlertCircleIcon aria-hidden={true} />
       <AlertTitle className="md:text-lg">{title}</AlertTitle>
       <AlertDescription>
         <pre className="text-xs whitespace-normal md:text-sm">

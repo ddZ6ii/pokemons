@@ -47,7 +47,7 @@ export default function SelectMode({
           aria-label={label}
         >
           <SelectValue>
-            <Icon aria-hidden="true" />
+            <Icon aria-hidden={true} />
             <span className="hidden md:block">{capitalize(mode)}</span>
           </SelectValue>
         </SelectTrigger>
