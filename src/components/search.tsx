@@ -1,6 +1,8 @@
+import { useQuery } from '@tanstack/react-query'
 import { CircleXIcon, SearchIcon } from 'lucide-react'
 import { useMemo, useState, useTransition } from 'react'
 
+import { createPokemonsQueryOptions } from '@/api'
 import {
   InputGroup,
   InputGroupAddon,
@@ -9,9 +11,10 @@ import {
 } from '@/components/ui/input-group'
 import { Label } from '@/components/ui/label'
 import { useFilters, useFiltersActions } from '@/store'
+import type { PokemonsPaginatedResponse } from '@/schemas'
 import { cn, debounce } from '@/utilities'
-import { useQuery } from '@tanstack/react-query'
-import { createPokemonsQueryOptions } from '@/api'
+
+const selectItems = (data: PokemonsPaginatedResponse) => data.items
 
 export default function Search({
   className,
@@ -24,8 +27,8 @@ export default function Search({
   const [isPending, startTransition] = useTransition()
   const { data: results } = useQuery({
     ...createPokemonsQueryOptions({ page, perPage, search }),
-    select: (data) => data.items,
-    enabled: !!search, // only fetch total items when there's a search term
+    select: selectItems,
+    enabled: !!search,
   })
 
   const debouncedSetSearch = useMemo(
@@ -36,7 +39,7 @@ export default function Search({
             setSearch(nextSearch.trim())
           })
         },
-        { delay: 300 },
+        { delay: 350 },
       ),
     [setSearch, startTransition],
   )

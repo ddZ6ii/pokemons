@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { memo, useState } from 'react'
 
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Heading } from '@/components/ui/heading'
@@ -35,7 +35,7 @@ type PokemonCardProps = React.ComponentProps<typeof Card> & {
   pokemon: Pokemon
 }
 
-export function PokemonCard({ pokemon, ...props }: PokemonCardProps) {
+function PokemonCard({ pokemon, ...props }: PokemonCardProps) {
   const [loaded, setLoaded] = useState(false)
 
   return (
@@ -50,14 +50,12 @@ export function PokemonCard({ pokemon, ...props }: PokemonCardProps) {
               )}
             >
               <img
+                loading="lazy"
                 src={`/pokemon-types/${type.toLowerCase()}.svg`}
                 alt={type}
                 width={16}
                 height={16}
-                className="t aspect-square w-full object-cover"
-                style={{
-                  right: 8 + i * (24 + 4), // 24px size + 4px gap
-                }}
+                className="aspect-square w-full object-cover"
               />
             </div>
           </WithTooltip>
@@ -68,7 +66,7 @@ export function PokemonCard({ pokemon, ...props }: PokemonCardProps) {
         <div className="flex flex-col items-center gap-4">
           {!loaded && <ImageSkeleton />}
           <img
-            src={`${BASE_IMAGE_URL}/${pokemon.id.toString()}.png`}
+            src={`${BASE_IMAGE_URL}/${String(pokemon.id)}.png`}
             alt={pokemon.name}
             width={280}
             height={280}
@@ -86,11 +84,12 @@ export function PokemonCard({ pokemon, ...props }: PokemonCardProps) {
           {POKEMON_SKILLS.map((skill) => (
             <WithTooltip
               key={skill}
-              message={`${skill}: ${pokemon[skill].toString()}`}
+              message={`${skill}: ${String(pokemon[skill])}`}
               className="after:bg-muted-foreground hover:text-foreground relative flex flex-1 justify-center transition-[colors_transform] after:absolute after:right-0 after:h-4 after:w-px after:content-[''] last:after:hidden hover:scale-110"
             >
               <div className="flex cursor-pointer items-center gap-1">
                 <img
+                  loading="lazy"
                   src={`/pokemon-skills/${skill}.svg`}
                   alt={skill}
                   width={20}
@@ -135,5 +134,5 @@ function PokemonCardSkeleton() {
   )
 }
 
-export default PokemonCard
+export default memo(PokemonCard)
 export { PokemonCardSkeleton }
