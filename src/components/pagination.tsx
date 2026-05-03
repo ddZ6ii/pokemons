@@ -11,6 +11,7 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination'
 import { useFilters, useFiltersActions } from '@/store'
+import { getPages } from '@/utilities'
 
 type PaginationProps = React.ComponentProps<'div'> & {
   disabled?: boolean
@@ -22,7 +23,7 @@ type PaginationProps = React.ComponentProps<'div'> & {
 export default function Pagination({
   className,
   disabled,
-  maxDisplayedPages = 5,
+  maxDisplayedPages = 7,
   maxPage,
   startTransition,
   ...props
@@ -45,6 +46,8 @@ export default function Pagination({
     )
   }
 
+  const pages = getPages(page, maxDisplayedPages, maxPage)
+
   return (
     <div className={className} {...props}>
       <UIPagination>
@@ -63,15 +66,12 @@ export default function Pagination({
             />
           </PaginationItem>
 
-          {Array.from({
-            length: maxDisplayedPages,
-          }).map((_, index) => {
-            const pageNumber =
-              page + maxDisplayedPages - 1 < maxPage
-                ? index + page
-                : Math.max(1, maxPage - maxDisplayedPages + 1) + index
-
-            return (
+          {pages.map((pageNumber, i) =>
+            isNaN(pageNumber) ? (
+              <PaginationItem key={`ellipsis-${String(i)}`}>
+                <PaginationEllipsis />
+              </PaginationItem>
+            ) : (
               <PaginationItem key={pageNumber}>
                 <PaginationLink
                   disabled={(disabled ?? false) || pageNumber > maxPage}
@@ -88,12 +88,7 @@ export default function Pagination({
                   {pageNumber}
                 </PaginationLink>
               </PaginationItem>
-            )
-          })}
-          {page + maxDisplayedPages - 1 < maxPage && (
-            <PaginationItem>
-              <PaginationEllipsis />
-            </PaginationItem>
+            ),
           )}
 
           <PaginationItem>

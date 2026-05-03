@@ -14,6 +14,16 @@ import {
 } from '@/components'
 import { useFilters } from '@/store'
 
+function WidgetFallback(props: FallbackProps) {
+  return (
+    <ErrorFallback
+      {...props}
+      title="Failed to load pokemons"
+      className="h-full"
+    />
+  )
+}
+
 function PokemonsFetcher() {
   const { page, perPage, search } = useFilters()
 
@@ -24,7 +34,7 @@ function PokemonsFetcher() {
   // -> `error`, `isError` and related component's branching logic are unreachable.
   // React bubbles the error up to the closest error boundary.
   const {
-    data: { data: pokemons, pages: maxPage },
+    data: { data: pokemons, pages: maxPage, items: totalItems },
   } = useSuspenseQuery(
     createPokemonsQueryOptions({
       page,
@@ -35,18 +45,8 @@ function PokemonsFetcher() {
   return (
     <>
       <PokemonList pokemons={pokemons} />
-      <PaginationBar maxPage={maxPage} />
+      <PaginationBar maxPage={maxPage} totalItems={totalItems} />
     </>
-  )
-}
-
-function WidgetFallback(props: FallbackProps) {
-  return (
-    <ErrorFallback
-      {...props}
-      title="Failed to load pokemons"
-      className="h-full"
-    />
   )
 }
 

@@ -1,8 +1,7 @@
 import { motion, type Variants } from 'motion/react'
 import { useTransition } from 'react'
 
-import { PageSizePicker, Pagination } from '@/components'
-import { Separator } from '@/components/ui/separator'
+import { PageSizeControl, Pagination } from '@/components'
 import { useScrollVisibility } from '@/hooks'
 import { cn } from '@/utilities'
 
@@ -19,15 +18,15 @@ const variants: Variants = {
 
 type PaginationBarProps = React.ComponentProps<typeof motion.div> & {
   maxPage: number
+  totalItems: number
 }
 
 export default function PaginationBar({
   className,
   maxPage,
+  totalItems,
   ...props
 }: PaginationBarProps) {
-  const hidden = useScrollVisibility(0.95, 'up', true)
-
   // ℹ️ Why useTransition?
   //
   // Problem:
@@ -45,10 +44,12 @@ export default function PaginationBar({
   // Share the same transition state between Pagination and PageSizePicker to disable both controls during any transition
   const [isPending, startTransition] = useTransition()
 
+  const hidden = useScrollVisibility(0.95, 'up', true)
+
   return (
     <motion.div
       className={cn(
-        'sticky bottom-4 z-10 flex items-center rounded-lg px-4 py-2 text-sm backdrop-blur-sm',
+        'sticky bottom-4 z-10 min-w-1/2 rounded-lg px-4 py-2 text-sm backdrop-blur-sm',
         className,
       )}
       variants={variants}
@@ -60,24 +61,19 @@ export default function PaginationBar({
       }}
       {...props}
     >
-      <div className="flex w-full items-center justify-center gap-2">
-        <p className="hidden whitespace-nowrap lg:block">Items per page:</p>
-        <PageSizePicker
+      <div className="flex flex-col items-center gap-3">
+        <Pagination
+          disabled={isPending}
+          maxPage={maxPage}
+          startTransition={startTransition}
+        />
+
+        <PageSizeControl
+          totalItems={totalItems}
           disabled={isPending}
           startTransition={startTransition}
         />
       </div>
-
-      <Separator
-        orientation="vertical"
-        className="ml-3 h-6 data-vertical:self-center"
-      />
-
-      <Pagination
-        disabled={isPending}
-        maxPage={maxPage}
-        startTransition={startTransition}
-      />
     </motion.div>
   )
 }
