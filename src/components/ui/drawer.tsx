@@ -3,9 +3,24 @@ import { Drawer as DrawerPrimitive } from 'vaul'
 import { cn } from '@/utilities'
 
 function Drawer({
+  onOpenChange,
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Root>) {
-  return <DrawerPrimitive.Root data-slot="drawer" {...props} />
+  const handleOpenChange = (open: boolean) => {
+    // Blur the trigger before vaul applies aria-hidden to #root, preventing
+    // the "aria-hidden on ancestor of focused element" browser warning.
+    if (open) {
+      ;(document.activeElement as HTMLElement).blur()
+    }
+    onOpenChange?.(open)
+  }
+  return (
+    <DrawerPrimitive.Root
+      data-slot="drawer"
+      onOpenChange={handleOpenChange}
+      {...props}
+    />
+  )
 }
 
 function DrawerTrigger({
