@@ -40,7 +40,7 @@ export default function ErrorAlert({
       </AlertDescription>
       {onRetry && (
         <AlertAction>
-          <Button type="button" variant="secondary" onClick={onRetry}>
+          <Button variant="secondary" onClick={onRetry}>
             Retry
           </Button>
         </AlertAction>

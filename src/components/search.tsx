@@ -16,11 +16,16 @@ import { cn, debounce } from '@/utilities'
 
 const selectItems = (data: PokemonsPaginatedResponse) => data.items
 
+type SearchProps = React.ComponentProps<typeof InputGroupInput> & {
+  wrapperClassName?: string
+}
+
 export default function Search({
   className,
   id = 'search',
+  wrapperClassName,
   ...props
-}: React.ComponentProps<typeof InputGroupInput>) {
+}: SearchProps) {
   const [name, setName] = useState('')
   const { page, perPage, search } = useFilters()
   const { setSearch } = useFiltersActions()
@@ -65,7 +70,7 @@ export default function Search({
         Search pokemon
       </Label>
 
-      <div className="relative w-xs">
+      <div className={cn('relative', wrapperClassName)}>
         <InputGroup className="has-[[data-slot=input-group-control]:focus-visible]:ring-primary/80">
           <InputGroupAddon>
             <SearchIcon aria-hidden={true} />

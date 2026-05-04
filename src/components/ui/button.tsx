@@ -63,13 +63,14 @@ function Button({
   asChild = false,
   dataIcon = 'inline-start',
   size = 'default',
+  type = 'button',
   variant = 'default',
   ...props
 }: ButtonProps) {
   const Comp = asChild ? Slot.Root : 'button'
 
   const spinner = loading ? (
-    <Spinner key="spinner" data-icon={dataIcon} aria-hidden="true" />
+    <Spinner key="spinner" data-icon={dataIcon} aria-hidden={true} />
   ) : null
 
   const output: React.ReactNode[] =
@@ -83,6 +84,7 @@ function Button({
       data-variant={variant}
       data-size={size}
       disabled={loading}
+      type={type}
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     >

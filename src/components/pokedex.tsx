@@ -1,4 +1,4 @@
-import { Pokemons, Search } from '@/components'
+import { Filters, Pokemons } from '@/components'
 import { Heading } from '@/components/ui/heading'
 import { cn } from '@/utilities'
 
@@ -14,7 +14,7 @@ export default function Pokedex({
       <Heading as="h1" className="text-center">
         Pokédex
       </Heading>
-      <Search id="search-pokemon" />
+      <Filters />
       <Pokemons />
     </section>
   )
