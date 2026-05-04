@@ -10,7 +10,7 @@ export default function Filters({
   return (
     <div
       className={cn(
-        'grid w-full max-w-78 grid-cols-[1fr_auto] gap-2 md:max-w-162 lg:grid-cols-1',
+        'grid w-full max-w-78 grid-cols-[1fr_auto] gap-2 md:max-w-162 lg:max-w-none lg:grid-cols-1 lg:gap-6',
         className,
       )}
       {...props}

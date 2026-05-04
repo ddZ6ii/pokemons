@@ -71,7 +71,7 @@ export default function Search({
       </Label>
 
       <div className={cn('relative', wrapperClassName)}>
-        <InputGroup className="has-[[data-slot=input-group-control]:focus-visible]:ring-primary/80">
+        <InputGroup className="has-[[data-slot=input-group-control]:focus-visible]:ring-primary/80 lg:h-9">
           <InputGroupAddon>
             <SearchIcon aria-hidden={true} />
           </InputGroupAddon>

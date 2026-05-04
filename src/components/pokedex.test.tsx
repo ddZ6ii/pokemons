@@ -1,20 +1,30 @@
-import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
+import {
+  act,
+  fireEvent,
+  renderHook,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
 import {
   afterAll,
   afterEach,
   beforeAll,
+  beforeEach,
   describe,
   expect,
   it,
   vi,
 } from 'vitest'
 
-import Pokedex from './pokedex'
 import type { PokemonsPaginatedResponse } from '@/schemas'
+import { useFiltersActions } from '@/store'
 import { initialFilterState } from '@/store/filters-slice'
 import { renderWithProviders } from '@/tests/utilities'
+import Pokedex from './pokedex'
 
 const POKEMONS_URL = '*/pokemons'
 const successResponse: PokemonsPaginatedResponse = {
@@ -140,5 +150,70 @@ describe('Pokedex', () => {
     await waitFor(() =>
       expect(screen.getByText('Bulbasaur')).toBeInTheDocument(),
     )
+  })
+})
+
+describe('Sorting integration', () => {
+  beforeEach(() => {
+    // Reset sort state so each test starts from a clean baseline
+    const { result } = renderHook(() => useFiltersActions())
+    act(() => {
+      result.current.resetSorting()
+    })
+  })
+
+  it('re-fetches with _sort=name when Name is selected', async () => {
+    const requests: URL[] = []
+    server.use(
+      http.get(POKEMONS_URL, ({ request }) => {
+        requests.push(new URL(request.url))
+        return HttpResponse.json(successResponse)
+      }),
+    )
+
+    const user = userEvent.setup()
+    renderPokedex()
+    await screen.findByText('Bulbasaur')
+
+    await user.click(
+      screen.getByRole('combobox', { name: /select sorting criteria/i }),
+    )
+    await user.click(await screen.findByRole('option', { name: /^name$/i }))
+
+    await waitFor(() => {
+      expect(
+        requests.find((url) => url.searchParams.get('_sort') === 'name'),
+      ).toBeDefined()
+    })
+  })
+
+  it('re-fetches with _sort=-name when Name + Descending are selected', async () => {
+    const requests: URL[] = []
+    server.use(
+      http.get(POKEMONS_URL, ({ request }) => {
+        requests.push(new URL(request.url))
+        return HttpResponse.json(successResponse)
+      }),
+    )
+
+    const user = userEvent.setup()
+    renderPokedex()
+    await screen.findByText('Bulbasaur')
+
+    await user.click(
+      screen.getByRole('combobox', { name: /select sorting criteria/i }),
+    )
+    await user.click(await screen.findByRole('option', { name: /^name$/i }))
+
+    await user.click(
+      screen.getByRole('combobox', { name: /select sorting order/i }),
+    )
+    await user.click(await screen.findByRole('option', { name: /descending/i }))
+
+    await waitFor(() => {
+      expect(
+        requests.find((url) => url.searchParams.get('_sort') === '-name'),
+      ).toBeDefined()
+    })
   })
 })

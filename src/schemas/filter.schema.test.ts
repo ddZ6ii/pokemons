@@ -35,12 +35,12 @@ describe('FilterSchema', () => {
     expect(FilterSchema.parse({}).perPage).toBe(10)
   })
 
-  it('defaults sortBy to "id"', () => {
-    expect(FilterSchema.parse({}).sortBy).toBe('id')
+  it('defaults sortBy to null', () => {
+    expect(FilterSchema.parse({}).sortBy).toBeNull()
   })
 
-  it('defaults sortOrder to "asc"', () => {
-    expect(FilterSchema.parse({}).sortOrder).toBe('asc')
+  it('defaults sortOrder to null', () => {
+    expect(FilterSchema.parse({}).sortOrder).toBeNull()
   })
 
   it('omits search when not provided', () => {
@@ -115,8 +115,8 @@ describe('APIParamsSchema', () => {
     expect(result).not.toHaveProperty('name:contains')
   })
 
-  it('omits _sort when sortBy is "id"', () => {
-    const result = APIParamsSchema.parse({ sortBy: 'id' })
+  it('omits _sort when sortBy is null', () => {
+    const result = APIParamsSchema.parse({ sortBy: null })
     expect(result).not.toHaveProperty('_sort')
   })
 

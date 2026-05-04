@@ -1,6 +1,7 @@
 export { default as ErrorFallback } from './error-fallback'
 export { default as ErrorAlert } from './error-alert'
 export { default as Filtering } from './filtering'
+export { default as FilterSelect } from './filter-select'
 export { default as Filters } from './filters'
 export { default as Header } from './header'
 export { default as Logo } from './logo'

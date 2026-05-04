@@ -59,6 +59,8 @@ const useStore = create<StoreState>()(
       partialize: (state) => ({
         mode: state.mode,
         perPage: state.perPage,
+        sortBy: state.sortBy,
+        sortOrder: state.sortOrder,
       }),
       // Recompute `isDarkMode` on rehydration (sync, before first paint) to avoid a flash of the wrong theme on load.
       onRehydrateStorage: () => (state) => {
@@ -85,6 +87,13 @@ const usePerPage = () => useStore((state) => state.perPage)
 const useSearch = () => useStore((state) => state.search)
 const useSortBy = () => useStore((state) => state.sortBy)
 const useSortOrder = () => useStore((state) => state.sortOrder)
+const useSortFilters = () =>
+  useStore(
+    useShallow((state) => ({
+      sortBy: state.sortBy,
+      sortOrder: state.sortOrder,
+    })),
+  )
 const usePaginationFilters = () =>
   useStore(
     useShallow((state) => ({ page: state.page, perPage: state.perPage })),
@@ -112,5 +121,6 @@ export {
   useSearch,
   useSortBy,
   useSortOrder,
+  useSortFilters,
   useFiltersActions,
 }

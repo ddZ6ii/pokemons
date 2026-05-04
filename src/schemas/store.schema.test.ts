@@ -7,7 +7,7 @@ import { StorageSchema, type PersistedStoreState } from './store.schema'
 
 const validInput: PersistedStoreState = {
   version: 1,
-  state: { mode: 'light', perPage: 10, sortBy: 'id', sortOrder: 'asc' },
+  state: { mode: 'light', perPage: 10, sortBy: 'name', sortOrder: 'asc' },
 }
 
 describe('StorageSchema', () => {
@@ -84,12 +84,12 @@ describe('StorageSchema', () => {
     expect(() => StorageSchema.parse({ ...validInput, version: '1' })).toThrow()
   })
 
-  it('defaults state.sortBy to "id"', () => {
+  it('defaults state.sortBy to null', () => {
     const { sortBy: _, ...stateWithoutSortBy } = validInput.state
     expect(
       StorageSchema.parse({ ...validInput, state: stateWithoutSortBy }).state
         .sortBy,
-    ).toBe('id')
+    ).toBeNull()
   })
 
   it('accepts sortBy "name"', () => {
@@ -119,12 +119,12 @@ describe('StorageSchema', () => {
     ).toThrow()
   })
 
-  it('defaults state.sortOrder to "asc"', () => {
+  it('defaults state.sortOrder to null', () => {
     const { sortOrder: _, ...stateWithoutSortOrder } = validInput.state
     expect(
       StorageSchema.parse({ ...validInput, state: stateWithoutSortOrder }).state
         .sortOrder,
-    ).toBe('asc')
+    ).toBeNull()
   })
 
   it('accepts sortOrder "desc"', () => {
