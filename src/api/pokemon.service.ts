@@ -3,8 +3,8 @@ import { ZodError, type ZodType } from 'zod'
 import { HttpError, ServerError, ValidationError } from '@/api'
 import {
   envSchema,
-  pokemonsPaginatedResponseSchema,
-  type PokemonsApiParams,
+  PokemonsPaginatedResponseSchema,
+  type ApiParams,
   type PokemonsPaginatedResponse,
 } from '@/schemas'
 import { isAbortError } from '@/utilities'
@@ -38,13 +38,13 @@ class PokemonService {
   }
 
   async getPokemons(
-    options: PokemonsApiParams,
+    options: ApiParams,
     signal?: AbortSignal,
   ): Promise<PokemonsPaginatedResponse> {
     const searchParams = new URLSearchParams(options).toString()
     return this.#fetch(
       `${this.#baseUrl}/pokemons?${searchParams}`,
-      pokemonsPaginatedResponseSchema,
+      PokemonsPaginatedResponseSchema,
       signal,
     )
   }

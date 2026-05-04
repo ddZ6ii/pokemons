@@ -1,25 +1,26 @@
 export { envSchema } from './env.schema'
 
 export {
+  APIParamsSchema,
+  FilterSchema,
+  PER_PAGE_OPTIONS,
+  type ApiParams,
+  type Filters,
+  type QueryOptions,
+} from './filter.schema'
+
+export { MODES, ModeSchema, type Mode } from './mode.schema'
+
+export {
   POKEMON_TYPES,
   POKEMON_SKILLS,
-  pokemonSchema,
-  pokemonsAPIParamsSchema,
-  pokemonsResponseSchema,
-  pokemonsPaginatedResponseSchema,
+  PokemonSchema,
+  PokemonsResponseSchema,
+  PokemonsPaginatedResponseSchema,
   type Pokemon,
-  type PokemonsOptions,
-  type PokemonsApiParams,
   type PokemonType,
   type PokemonSkills,
   type PokemonsPaginatedResponse,
 } from './pokemon.schema'
 
-export {
-  type Filters,
-  type Mode,
-  type PersistedStoreState,
-  MODES,
-  PER_PAGE_OPTIONS,
-  StorageSchema,
-} from './store.schema'
+export { type PersistedStoreState, StorageSchema } from './store.schema'

@@ -27,11 +27,11 @@ export default function Search({
   ...props
 }: SearchProps) {
   const [name, setName] = useState('')
-  const { page, perPage, search } = useFilters()
+  const { search, ...filters } = useFilters()
   const { setSearch } = useFiltersActions()
   const [isPending, startTransition] = useTransition()
   const { data: results } = useQuery({
-    ...createPokemonsQueryOptions({ page, perPage, search }),
+    ...createPokemonsQueryOptions({ search, ...filters }),
     select: selectItems,
     enabled: !!search,
   })

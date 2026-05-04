@@ -3,8 +3,12 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 import { useShallow } from 'zustand/shallow'
 
 import { StorageSchema } from '@/schemas'
+import {
+  createFilterSlice,
+  initialFilterState,
+  type FilterSlice,
+} from '@/store/filters-slice'
 import { createModeSlice, type ModeSlice } from '@/store/mode-slice'
-import { createFilterSlice, type FilterSlice } from '@/store/filters-slice'
 import { toggleMode } from '@/utilities'
 
 type StoreState = ModeSlice & FilterSlice
@@ -17,12 +21,23 @@ const useStore = create<StoreState>()(
     }),
     {
       name: 'pokedex-store',
-      version: 1,
+      version: 2,
       migrate: (persistedState, version) => {
         if (version === 0) {
-          return { ...(persistedState as object), perPage: 10 }
+          return {
+            ...(persistedState as object),
+            perPage: initialFilterState.perPage,
+            sortBy: initialFilterState.sortBy,
+            sortOrder: initialFilterState.sortOrder,
+          }
         }
-
+        if (version === 1) {
+          return {
+            ...(persistedState as object),
+            sortBy: initialFilterState.sortBy,
+            sortOrder: initialFilterState.sortOrder,
+          }
+        }
         return persistedState
       },
       // Custom storage adapter to extend base implementation with runtime validation (null → falls back to initialState)
@@ -68,12 +83,20 @@ const useModeActions = () => useStore((state) => state.modeActions)
 const usePage = () => useStore((state) => state.page)
 const usePerPage = () => useStore((state) => state.perPage)
 const useSearch = () => useStore((state) => state.search)
+const useSortBy = () => useStore((state) => state.sortBy)
+const useSortOrder = () => useStore((state) => state.sortOrder)
+const usePaginationFilters = () =>
+  useStore(
+    useShallow((state) => ({ page: state.page, perPage: state.perPage })),
+  )
 const useFilters = () =>
   useStore(
     useShallow((state) => ({
       page: state.page,
       perPage: state.perPage,
       search: state.search,
+      sortBy: state.sortBy,
+      sortOrder: state.sortOrder,
     })),
   )
 const useFiltersActions = () => useStore((state) => state.filterActions)
@@ -84,7 +107,10 @@ export {
   useModeActions,
   useFilters,
   usePage,
+  usePaginationFilters,
   usePerPage,
   useSearch,
+  useSortBy,
+  useSortOrder,
   useFiltersActions,
 }

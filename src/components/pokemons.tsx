@@ -25,7 +25,7 @@ function WidgetFallback(props: FallbackProps) {
 }
 
 function PokemonsFetcher() {
-  const { page, perPage, search } = useFilters()
+  const filters = useFilters()
 
   // ℹ️ How useSuspenseQuery works
   //
@@ -37,9 +37,7 @@ function PokemonsFetcher() {
     data: { data: pokemons, pages: maxPage, items: totalItems },
   } = useSuspenseQuery(
     createPokemonsQueryOptions({
-      page,
-      perPage,
-      search,
+      ...filters,
     }),
   )
   return (

@@ -1,15 +1,13 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  MODES,
-  PER_PAGE_OPTIONS,
-  StorageSchema,
-  type PersistedStoreState,
-} from './store.schema'
+import { PER_PAGE_OPTIONS } from './filter.schema'
+import { MODES } from './mode.schema'
+import { POKEMON_SKILLS } from './pokemon.schema'
+import { StorageSchema, type PersistedStoreState } from './store.schema'
 
 const validInput: PersistedStoreState = {
   version: 1,
-  state: { mode: 'light' as const, perPage: 10 as const },
+  state: { mode: 'light', perPage: 10, sortBy: 'id', sortOrder: 'asc' },
 }
 
 describe('StorageSchema', () => {
@@ -38,6 +36,14 @@ describe('StorageSchema', () => {
     ).toThrow()
   })
 
+  it('defaults state.mode to "system"', () => {
+    const { mode: _, ...stateWithoutMode } = validInput.state
+    expect(
+      StorageSchema.parse({ ...validInput, state: stateWithoutMode }).state
+        .mode,
+    ).toBe('system')
+  })
+
   it.each(PER_PAGE_OPTIONS)('accepts perPage %s', (perPage) => {
     expect(() =>
       StorageSchema.parse({
@@ -45,6 +51,14 @@ describe('StorageSchema', () => {
         state: { ...validInput.state, perPage: Number(perPage) },
       }),
     ).not.toThrow()
+  })
+
+  it('defaults state.perPage to "10"', () => {
+    const { perPage: _, ...stateWithoutPerPage } = validInput.state
+    expect(
+      StorageSchema.parse({ ...validInput, state: stateWithoutPerPage }).state
+        .perPage,
+    ).toBe(10)
   })
 
   it('rejects an invalid perPage', () => {
@@ -61,17 +75,73 @@ describe('StorageSchema', () => {
     expect(() => StorageSchema.parse(rest)).toThrow()
   })
 
-  it('rejects missing state.mode', () => {
-    const { mode: _, ...stateWithoutMode } = validInput.state
+  it('rejects missing version', () => {
+    const { version: _, ...rest } = validInput
+    expect(() => StorageSchema.parse(rest)).toThrow()
+  })
+
+  it('rejects non-number version', () => {
+    expect(() => StorageSchema.parse({ ...validInput, version: '1' })).toThrow()
+  })
+
+  it('defaults state.sortBy to "id"', () => {
+    const { sortBy: _, ...stateWithoutSortBy } = validInput.state
+    expect(
+      StorageSchema.parse({ ...validInput, state: stateWithoutSortBy }).state
+        .sortBy,
+    ).toBe('id')
+  })
+
+  it('accepts sortBy "name"', () => {
     expect(() =>
-      StorageSchema.parse({ ...validInput, state: stateWithoutMode }),
+      StorageSchema.parse({
+        ...validInput,
+        state: { ...validInput.state, sortBy: 'name' },
+      }),
+    ).not.toThrow()
+  })
+
+  it.each(POKEMON_SKILLS)('accepts sortBy skill "%s"', (skill) => {
+    expect(() =>
+      StorageSchema.parse({
+        ...validInput,
+        state: { ...validInput.state, sortBy: skill },
+      }),
+    ).not.toThrow()
+  })
+
+  it('rejects invalid sortBy', () => {
+    expect(() =>
+      StorageSchema.parse({
+        ...validInput,
+        state: { ...validInput.state, sortBy: 'weight' },
+      }),
     ).toThrow()
   })
 
-  it('rejects missing state.perPage', () => {
-    const { perPage: _, ...stateWithoutPerPage } = validInput.state
+  it('defaults state.sortOrder to "asc"', () => {
+    const { sortOrder: _, ...stateWithoutSortOrder } = validInput.state
+    expect(
+      StorageSchema.parse({ ...validInput, state: stateWithoutSortOrder }).state
+        .sortOrder,
+    ).toBe('asc')
+  })
+
+  it('accepts sortOrder "desc"', () => {
     expect(() =>
-      StorageSchema.parse({ ...validInput, state: stateWithoutPerPage }),
+      StorageSchema.parse({
+        ...validInput,
+        state: { ...validInput.state, sortOrder: 'desc' },
+      }),
+    ).not.toThrow()
+  })
+
+  it('rejects invalid sortOrder', () => {
+    expect(() =>
+      StorageSchema.parse({
+        ...validInput,
+        state: { ...validInput.state, sortOrder: 'random' },
+      }),
     ).toThrow()
   })
 })

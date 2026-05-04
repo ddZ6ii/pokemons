@@ -1,9 +1,13 @@
 import { describe, expect, it, vi } from 'vitest'
 
 import { HttpError, pokemonService, ServerError, ValidationError } from '@/api'
-import type { PokemonsApiParams, PokemonsPaginatedResponse } from '@/schemas'
+import type { ApiParams, PokemonsPaginatedResponse } from '@/schemas'
 
-const defaultParams: PokemonsApiParams = { _page: '1', _per_page: '10' }
+const defaultParams: ApiParams = {
+  _page: '1',
+  _per_page: '10',
+  _sort: 'id',
+}
 
 const validResponse: PokemonsPaginatedResponse = {
   first: 1,

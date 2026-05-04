@@ -34,7 +34,7 @@ export default function Sorting({
 
 function SortingControls({ className, ...props }: React.ComponentProps<'div'>) {
   return (
-    <div className={cn('bg-amber-300', className)} {...props}>
+    <div className={cn('', className)} {...props}>
       Sorting
     </div>
   )
@@ -63,12 +63,32 @@ function SortingDrawer({
         <div className="mx-auto w-full max-w-sm">
           <DrawerHeader>
             <DrawerTitle>Sorting Options</DrawerTitle>
-            <DrawerDescription>Set your daily activity goal.</DrawerDescription>
+            <DrawerDescription>
+              You can choose multiple sorting criteria and order of application.
+            </DrawerDescription>
           </DrawerHeader>
+
+          <SortingControls className="flex flex-col p-4" />
+
           <DrawerFooter>
-            <Button>Submit</Button>
             <DrawerClose asChild>
-              <Button variant="outline">Reset sorting options</Button>
+              <Button
+                onClick={() => {
+                  console.log('🚧 apply filters...')
+                }}
+              >
+                Apply
+              </Button>
+            </DrawerClose>
+            <DrawerClose asChild>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  console.log('🚧 reset filters...')
+                }}
+              >
+                Reset
+              </Button>
             </DrawerClose>
           </DrawerFooter>
         </div>

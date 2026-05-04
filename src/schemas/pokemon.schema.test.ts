@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
 import {
-  pokemonSchema,
-  pokemonsPaginatedResponseSchema,
-  pokemonsResponseSchema,
+  PokemonSchema,
+  PokemonsPaginatedResponseSchema,
+  PokemonsResponseSchema,
   type Pokemon,
 } from './pokemon.schema'
 
@@ -19,98 +19,98 @@ const validPokemon: Pokemon = {
   speed: 45,
 }
 
-describe('pokemonSchema', () => {
+describe('PokemonSchema', () => {
   it('accepts a valid pokemon', () => {
-    expect(pokemonSchema.parse(validPokemon)).toEqual(validPokemon)
+    expect(PokemonSchema.parse(validPokemon)).toEqual(validPokemon)
   })
 
   it('coerces id from string', () => {
-    expect(pokemonSchema.parse({ ...validPokemon, id: '1' }).id).toBe(1)
+    expect(PokemonSchema.parse({ ...validPokemon, id: '1' }).id).toBe(1)
   })
 
   it('rejects id 0', () => {
-    expect(() => pokemonSchema.parse({ ...validPokemon, id: 0 })).toThrow()
+    expect(() => PokemonSchema.parse({ ...validPokemon, id: 0 })).toThrow()
   })
 
   it('rejects negative id', () => {
-    expect(() => pokemonSchema.parse({ ...validPokemon, id: -1 })).toThrow()
+    expect(() => PokemonSchema.parse({ ...validPokemon, id: -1 })).toThrow()
   })
 
   it('rejects non-integer id', () => {
-    expect(() => pokemonSchema.parse({ ...validPokemon, id: 1.5 })).toThrow()
+    expect(() => PokemonSchema.parse({ ...validPokemon, id: 1.5 })).toThrow()
   })
 
   it('rejects empty name', () => {
-    expect(() => pokemonSchema.parse({ ...validPokemon, name: '' })).toThrow()
+    expect(() => PokemonSchema.parse({ ...validPokemon, name: '' })).toThrow()
   })
 
   it('rejects empty type array', () => {
-    expect(() => pokemonSchema.parse({ ...validPokemon, type: [] })).toThrow()
+    expect(() => PokemonSchema.parse({ ...validPokemon, type: [] })).toThrow()
   })
 
   it('accepts single-element type array', () => {
     expect(() =>
-      pokemonSchema.parse({ ...validPokemon, type: ['Fire'] }),
+      PokemonSchema.parse({ ...validPokemon, type: ['Fire'] }),
     ).not.toThrow()
   })
 
   it('rejects hp of 0', () => {
-    expect(() => pokemonSchema.parse({ ...validPokemon, hp: 0 })).toThrow()
+    expect(() => PokemonSchema.parse({ ...validPokemon, hp: 0 })).toThrow()
   })
 
   it('rejects negative attack', () => {
-    expect(() => pokemonSchema.parse({ ...validPokemon, attack: -1 })).toThrow()
+    expect(() => PokemonSchema.parse({ ...validPokemon, attack: -1 })).toThrow()
   })
 
   it('rejects non-integer defense', () => {
     expect(() =>
-      pokemonSchema.parse({ ...validPokemon, defense: 49.5 }),
+      PokemonSchema.parse({ ...validPokemon, defense: 49.5 }),
     ).toThrow()
   })
 
   it('rejects non-integer special_attack', () => {
     expect(() =>
-      pokemonSchema.parse({ ...validPokemon, special_attack: 1.1 }),
+      PokemonSchema.parse({ ...validPokemon, special_attack: 1.1 }),
     ).toThrow()
   })
 
   it('rejects non-integer special_defense', () => {
     expect(() =>
-      pokemonSchema.parse({ ...validPokemon, special_defense: 1.1 }),
+      PokemonSchema.parse({ ...validPokemon, special_defense: 1.1 }),
     ).toThrow()
   })
 
   it('rejects speed of 0', () => {
-    expect(() => pokemonSchema.parse({ ...validPokemon, speed: 0 })).toThrow()
+    expect(() => PokemonSchema.parse({ ...validPokemon, speed: 0 })).toThrow()
   })
 
   it('rejects missing required field', () => {
     const { hp: _, ...withoutHp } = validPokemon
-    expect(() => pokemonSchema.parse(withoutHp)).toThrow()
+    expect(() => PokemonSchema.parse(withoutHp)).toThrow()
   })
 })
 
-describe('pokemonsResponseSchema', () => {
+describe('PokemonsResponseSchema', () => {
   it('accepts an array of valid pokemons', () => {
-    expect(pokemonsResponseSchema.parse([validPokemon])).toEqual([validPokemon])
+    expect(PokemonsResponseSchema.parse([validPokemon])).toEqual([validPokemon])
   })
 
   it('accepts an empty array', () => {
-    expect(pokemonsResponseSchema.parse([])).toEqual([])
+    expect(PokemonsResponseSchema.parse([])).toEqual([])
   })
 
   it('rejects an array with an invalid pokemon', () => {
     expect(() =>
-      pokemonsResponseSchema.parse([{ ...validPokemon, hp: 0 }]),
+      PokemonsResponseSchema.parse([{ ...validPokemon, hp: 0 }]),
     ).toThrow()
   })
 
   it('rejects a non-array', () => {
-    expect(() => pokemonsResponseSchema.parse(validPokemon)).toThrow()
+    expect(() => PokemonsResponseSchema.parse(validPokemon)).toThrow()
   })
 })
 
-describe('pokemonsPaginatedResponseSchema', () => {
+describe('PokemonsPaginatedResponseSchema', () => {
   const validPaginated = {
     data: [validPokemon],
     first: 1,
@@ -122,14 +122,14 @@ describe('pokemonsPaginatedResponseSchema', () => {
   }
 
   it('accepts a valid paginated response', () => {
-    expect(pokemonsPaginatedResponseSchema.parse(validPaginated)).toEqual(
+    expect(PokemonsPaginatedResponseSchema.parse(validPaginated)).toEqual(
       validPaginated,
     )
   })
 
   it('accepts null for prev and next', () => {
     expect(() =>
-      pokemonsPaginatedResponseSchema.parse({
+      PokemonsPaginatedResponseSchema.parse({
         ...validPaginated,
         prev: null,
         next: null,
@@ -139,7 +139,7 @@ describe('pokemonsPaginatedResponseSchema', () => {
 
   it('accepts numbers for prev and next', () => {
     expect(() =>
-      pokemonsPaginatedResponseSchema.parse({
+      PokemonsPaginatedResponseSchema.parse({
         ...validPaginated,
         prev: 1,
         next: 3,
@@ -149,7 +149,7 @@ describe('pokemonsPaginatedResponseSchema', () => {
 
   it('rejects string for prev', () => {
     expect(() =>
-      pokemonsPaginatedResponseSchema.parse({
+      PokemonsPaginatedResponseSchema.parse({
         ...validPaginated,
         prev: 'none',
       }),
@@ -158,7 +158,7 @@ describe('pokemonsPaginatedResponseSchema', () => {
 
   it('rejects string for next', () => {
     expect(() =>
-      pokemonsPaginatedResponseSchema.parse({
+      PokemonsPaginatedResponseSchema.parse({
         ...validPaginated,
         next: 'none',
       }),
@@ -167,12 +167,12 @@ describe('pokemonsPaginatedResponseSchema', () => {
 
   it('rejects missing data field', () => {
     const { data: _, ...withoutData } = validPaginated
-    expect(() => pokemonsPaginatedResponseSchema.parse(withoutData)).toThrow()
+    expect(() => PokemonsPaginatedResponseSchema.parse(withoutData)).toThrow()
   })
 
   it('rejects invalid pokemon inside data', () => {
     expect(() =>
-      pokemonsPaginatedResponseSchema.parse({
+      PokemonsPaginatedResponseSchema.parse({
         ...validPaginated,
         data: [{ ...validPokemon, id: -1 }],
       }),
@@ -181,7 +181,7 @@ describe('pokemonsPaginatedResponseSchema', () => {
 
   it('accepts empty data array', () => {
     expect(() =>
-      pokemonsPaginatedResponseSchema.parse({ ...validPaginated, data: [] }),
+      PokemonsPaginatedResponseSchema.parse({ ...validPaginated, data: [] }),
     ).not.toThrow()
   })
 })

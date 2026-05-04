@@ -2,13 +2,13 @@ import { queryOptions } from '@tanstack/react-query'
 
 import { HttpError, pokemonService, ValidationError } from '@/api'
 import {
-  pokemonsAPIParamsSchema,
-  type PokemonsOptions,
+  APIParamsSchema,
   type PokemonsPaginatedResponse,
+  type QueryOptions,
 } from '@/schemas'
 
-const createPokemonsQueryOptions = (options?: PokemonsOptions) => {
-  const parsedOptions = pokemonsAPIParamsSchema.safeParse(options)
+const createPokemonsQueryOptions = (options?: QueryOptions) => {
+  const parsedOptions = APIParamsSchema.safeParse(options)
   if (!parsedOptions.success) {
     throw new ValidationError(parsedOptions.error)
   }

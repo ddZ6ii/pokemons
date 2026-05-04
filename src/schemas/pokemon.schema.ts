@@ -1,5 +1,6 @@
 import z from 'zod'
 
+const POKEMON_SKILLS = ['hp', 'attack', 'defense', 'speed'] as const
 const POKEMON_TYPES = [
   'Bug',
   'Dark',
@@ -21,16 +22,13 @@ const POKEMON_TYPES = [
   'Water',
 ] as const
 
-const POKEMON_SKILLS = ['hp', 'attack', 'defense', 'speed'] as const
+const _PokemonSkillsSchema = z.enum(POKEMON_SKILLS)
+const _PokemonTypeSchema = z.enum(POKEMON_TYPES)
 
-const _pokemonTypeSchema = z.enum(POKEMON_TYPES)
-
-const _pokemonSkillsSchema = z.enum(POKEMON_SKILLS)
-
-const pokemonSchema = z.object({
+const PokemonSchema = z.object({
   id: z.coerce.number().int().positive(),
   name: z.string().min(1),
-  type: z.array(_pokemonTypeSchema).min(1),
+  type: z.array(_PokemonTypeSchema).min(1),
   hp: z.number().int().positive(),
   attack: z.number().int().positive(),
   defense: z.number().int().positive(),
@@ -39,57 +37,31 @@ const pokemonSchema = z.object({
   speed: z.number().int().positive(),
 })
 
-const _baseOptionsSchema = z.object({
-  page: z.number().int().positive().default(1),
-  perPage: z.number().int().positive().max(100).default(10),
-  search: z.string().optional(),
-  sort: z.enum(['id', 'name']).default('id'),
-  order: z.enum(['asc', 'desc']).default('asc'),
-})
-const pokemonsAPIParamsSchema = _baseOptionsSchema
-  .optional()
-  .transform((input) => {
-    const { page, perPage, search, sort, order } = _baseOptionsSchema.parse(
-      input ?? {},
-    )
-    return {
-      _page: page.toString(),
-      _per_page: perPage.toString(),
-      ...(search && { 'name:contains': search }),
-      // json-server stringifies numeric IDs, making _sort=id lexicographic. Since db.json is already in ascending numeric order, omit _sort for this case.
-      ...(sort !== 'id' && { _sort: order === 'asc' ? sort : `-${sort}` }),
-    }
-  })
+const PokemonsResponseSchema = z.array(PokemonSchema)
 
-const pokemonsResponseSchema = z.array(pokemonSchema)
-
-const pokemonsPaginatedResponseSchema = z.object({
+const PokemonsPaginatedResponseSchema = z.object({
   first: z.number(),
   prev: z.number().nullable(),
   next: z.number().nullable(),
   last: z.number(),
   pages: z.number(),
   items: z.number(),
-  data: z.array(pokemonSchema),
+  data: z.array(PokemonSchema),
 })
 
-type PokemonType = z.infer<typeof _pokemonTypeSchema>
-type PokemonSkills = z.infer<typeof _pokemonSkillsSchema>
-type Pokemon = z.infer<typeof pokemonSchema>
-type PokemonsOptions = z.input<typeof pokemonsAPIParamsSchema>
-type PokemonsApiParams = z.output<typeof pokemonsAPIParamsSchema>
-type PokemonsPaginatedResponse = z.infer<typeof pokemonsPaginatedResponseSchema>
+type PokemonType = z.infer<typeof _PokemonTypeSchema>
+type PokemonSkills = z.infer<typeof _PokemonSkillsSchema>
+type Pokemon = z.infer<typeof PokemonSchema>
+
+type PokemonsPaginatedResponse = z.infer<typeof PokemonsPaginatedResponseSchema>
 
 export {
   POKEMON_TYPES,
   POKEMON_SKILLS,
-  pokemonSchema,
-  pokemonsAPIParamsSchema,
-  pokemonsResponseSchema,
-  pokemonsPaginatedResponseSchema,
+  PokemonSchema,
+  PokemonsResponseSchema,
+  PokemonsPaginatedResponseSchema,
   type Pokemon,
-  type PokemonsOptions,
-  type PokemonsApiParams,
   type PokemonType,
   type PokemonSkills,
   type PokemonsPaginatedResponse,

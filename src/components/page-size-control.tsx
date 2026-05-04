@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import { PER_PAGE_OPTIONS, type Filters } from '@/schemas'
-import { useFilters, useFiltersActions, usePerPage } from '@/store'
+import { useFiltersActions, usePaginationFilters, usePerPage } from '@/store'
 import { cn } from '@/utilities'
 
 function PaginationRangeDisplay({
@@ -19,7 +19,7 @@ function PaginationRangeDisplay({
 }: React.ComponentProps<'p'> & {
   totalItems: number
 }) {
-  const { page, perPage } = useFilters()
+  const { page, perPage } = usePaginationFilters()
 
   return (
     <p
