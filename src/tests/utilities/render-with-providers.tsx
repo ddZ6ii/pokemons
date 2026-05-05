@@ -1,9 +1,9 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, type RenderOptions } from '@testing-library/react'
 
-import { TooltipProvider } from '@/components/ui/tooltip'
+import { TooltipProvider } from '@/shared/components/ui/tooltip'
 
-export default function renderWithProviders(
+export function renderWithProviders(
   ui: React.ReactElement,
   options?: RenderOptions,
 ) {

@@ -4,9 +4,9 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { ErrorBoundary, type FallbackProps } from 'react-error-boundary'
 
-import App from '@/app'
-import { ValidationError } from '@/api'
-import { ErrorFallback } from '@/components'
+import { App } from '@/app'
+import { ValidationError } from '@/shared/api'
+import { ErrorFallback } from '@/shared/components'
 import './index.css'
 
 const rootEl = document.getElementById('root')

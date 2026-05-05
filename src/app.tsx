@@ -1,7 +1,8 @@
-import { Header, Pokedex } from '@/components'
-import { TooltipProvider } from '@/components/ui/tooltip'
+import { Pokedex } from '@/features/pokemons/components'
+import { Header } from '@/shared/components'
+import { TooltipProvider } from '@/shared/components/ui/tooltip'
 
-export default function App() {
+export function App() {
   return (
     <TooltipProvider>
       <div className="relative container mx-auto flex min-h-screen flex-col p-3">
